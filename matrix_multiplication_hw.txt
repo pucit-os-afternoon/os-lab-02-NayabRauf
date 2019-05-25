@@ -1,0 +1,139 @@
+#include <pthread.h>  // header file for threads
+#include <stdio.h>   // header file for standard input and output.
+#include <stdlib.h> // header file for functions involving memory allocation, process control, conversions and others
+#include <unistd.h> //header file that provides access to the POSIX operating system API. (fork, pipe and I/O primitives [read, write, close, etc.] )
+#include <errno.h>  //header file for error handling 
+#include <math.h> //header file for math fast operations 
+
+
+
+void * multiplyer (void *);  //prototype for function multiplyer
+
+int i=0;
+int ** arr ;
+int ** arr1 ;
+int ** arr2 ;
+
+int main(int arg, char ** args)
+{
+	
+	char file1_name []=args[1];
+	char file2_name []=args[2];
+	char ch ;
+	
+	FILE * file = fopen(args[1],"r");
+	FILE * file1 = fopen(args[2],"r");
+	
+	
+	int r = 3;
+	int c = 3 ;
+	 arr =(int **)malloc(r*sizeof(int *));
+	  arr1 =(int **)malloc(r*sizeof(int *));
+	 arr2=(int **)malloc(r*sizeof(int *));
+
+	for(int i =0 ; i<r ; i++)
+	{
+	    arr[i] = (int *)malloc(c*sizeof(int));
+	}
+	
+	if(file==NULL)
+	{
+	   perror("ERROR WHILE OPENING THE FILE.\n");
+	   exit(EXIT_FAILURE);
+	}
+	else
+	{
+		printf("THE CONTENTS OF %s file are :\n" , "sample_textfile1.txt");
+	    while(!feof(file))
+		{
+			fscanf(file, "%d" ,&arr[r][c] );
+			if(r=='\n')
+			{
+			  r++;
+			}
+			c++;
+		}
+	}
+	
+	fclose(file);
+	int r1 =3 ; 
+	int c1=3 ;
+	for(int i =0 ; i<r1 ; i++)
+	{
+	    arr1[i] = (int *)malloc(c1*sizeof(int));
+	}
+	
+	if(file1==NULL)
+	{
+	   perror("ERROR WHILE OPENING THE FILE.\n");
+	   exit(EXIT_FAILURE);
+	}
+	else
+	{
+		printf("THE CONTENTS OF %s file are :\n" , "sample_textfile1.txt");
+	    while(!feof(file1))
+		{
+			fscanf(file1, "%d" ,&arr1[r1][c1] );
+			if(r1=='\n')
+			{
+			  r1++;
+			}
+			c1++;
+		}
+	}
+	fclose(file1);
+	int r2 =3 ; 
+	int c2=3 ;
+	for(int i =0 ; i<r2 ; i++)
+	{
+	    arr2[i] = (int *)malloc(c2*sizeof(int));
+	}
+	
+	pthread_t matrix_mul ;
+	          pthread_create(&matrix_mul , NULL , multiplyer , NULL);
+	for(int i = 0 ; i<r2  ; i++)
+	{
+	   for(int j =0 ; j<c2 ; j++)
+	   {
+	      for(int k=0 ; k<c2 ; k++)
+		  {
+			  
+	          
+		      arr2[i][j]+=arr[i][k]*arr1[k][j];
+		  }
+		 
+	   }
+	  
+	}
+	 pthread_join(matrix_mul,NULL);
+	for(int i =0 ; i<r ; i++)
+	{
+	   for(int j =0 ; j<c ; j++)
+	   {
+	     printf("%d", arr2[i][j]);
+	   }
+	}
+	
+	printf("\nmain is ended \n");
+	return 0;
+}
+
+void * multiplyer (void * arg)
+{
+	printf("\n executing thread # %d", i++ );  
+	int r2 =3;
+		int c2 = 3;
+	for(int i = 0 ; i<r2  ; i++)
+	{
+	   for(int j =0 ; j<c2 ; j++)
+	   {
+	      for(int k=0 ; k<c2 ; k++)
+		  {
+		       arr2[i][j]+=arr[i][k]*arr1[k][j];
+		  }
+		
+	   }
+	}
+	printf("thread finished\n");
+	pthread_exit(NULL);
+}
